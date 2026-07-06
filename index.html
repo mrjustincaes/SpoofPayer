@@ -3,268 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Paystub Generator</title>
-    <!-- Library for client-side PDF generation -->
+    <title>SpoofPayer - Free Document Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Core Reset and Base Styles */
         body { 
             background-color: #ffffff; 
             color: #000000; 
             font-family: Arial, sans-serif; 
             margin: 0; 
-            padding: 40px 20px; 
+            padding: 20px; 
             display: flex; 
             justify-content: center; 
         }
-        
         .container { 
             display: flex; 
             width: 100%; 
-            max-width: 1000px; 
-            gap: 40px; 
+            max-width: 1200px; 
+            gap: 30px; 
         }
-        
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
+        @media (max-width: 900px) {
+            .container { flex-direction: column; }
         }
 
-        /* Form Layout */
+        /* Form Styles */
         .form-section { 
             flex: 1; 
+            min-width: 350px;
             padding: 20px; 
-            border: 1px solid #cccccc; 
+            border: 1px solid #000000; 
             background-color: #ffffff;
+            height: fit-content;
         }
-        
-        .form-group { 
-            margin-bottom: 15px; 
-        }
-        
-        label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: bold; 
-            font-size: 14px;
-        }
-        
-        input { 
-            width: 100%; 
-            padding: 10px; 
-            box-sizing: border-box; 
-            border: 1px solid #aaaaaa;
-            font-size: 14px;
-        }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 13px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #000; font-size: 14px; }
+        .row-inputs { display: flex; gap: 10px; }
+        .row-inputs .form-group { flex: 1; }
+        .btn { padding: 12px; background-color: #000000; color: #ffffff; border: none; cursor: pointer; font-size: 16px; margin-top: 15px; width: 100%; font-weight: bold; text-transform: uppercase; }
+        .btn:hover { background-color: #333333; }
 
-        .btn { 
-            padding: 12px 20px; 
-            background-color: #000000; 
-            color: #ffffff; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 16px; 
-            margin-top: 20px; 
-            width: 100%; 
-            font-weight: bold;
-        }
-        
-        .btn:hover { 
-            background-color: #333333; 
-        }
-
-        /* Document Preview Layout */
+        /* Preview Styles */
         .preview-section { 
-            flex: 1; 
+            flex: 2; 
             padding: 20px; 
-            border: 1px solid #cccccc; 
+            border: 1px solid #000000; 
             background-color: #ffffff; 
+            overflow-y: auto;
+            max-height: 90vh;
         }
-        
-        .stub-box { 
-            border: 2px solid #000000; 
-            padding: 30px; 
-            background-color: #ffffff; 
-            color: #000000; 
-        }
-        
-        .header { 
-            text-align: center; 
-            border-bottom: 2px solid #000000; 
-            margin-bottom: 20px; 
-            padding-bottom: 10px; 
-        }
-        
-        .header h3 {
-            margin: 0 0 5px 0;
-            font-size: 24px;
-            text-transform: uppercase;
-        }
-        
-        .header p {
-            margin: 0;
-            font-size: 14px;
-            letter-spacing: 1px;
+        .document-container {
+            background-color: #ffffff;
+            width: 100%;
         }
 
-        .row { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-bottom: 15px; 
-            font-size: 14px;
+        /* W-2 Specific Styles */
+        .w2-box {
+            border: 2px solid #000;
+            padding: 0;
+            font-size: 12px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
+        .w2-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid #000;
+        }
+        .w2-cell {
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px;
+            min-height: 40px;
+        }
+        .w2-cell:last-child { border-right: none; }
+        .w2-label { font-size: 10px; font-weight: bold; margin-bottom: 4px; display: block; }
+        .w2-value { font-family: monospace; font-size: 14px; }
         
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
+        /* Paystub Specific Styles */
+        .paystub-wrapper {
+            border: 1px dashed #999;
+            margin-bottom: 30px;
+            padding: 20px;
+            page-break-after: always;
         }
+        .paystub-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .ps-company { font-weight: bold; font-size: 14px; line-height: 1.4; }
+        .ps-title { text-align: right; }
+        .ps-title h3 { margin: 0; font-size: 18px; text-transform: uppercase; }
         
-        th, td { 
-            border-bottom: 1px solid #dddddd; 
-            padding: 10px 5px; 
-            text-align: left; 
-            font-size: 14px;
-        }
+        .ps-tables { margin-bottom: 20px; }
+        .ps-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
+        .ps-table th, .ps-table td { padding: 5px; text-align: left; }
+        .ps-table th { border-bottom: 1px solid #000; font-weight: bold; }
+        .ps-table td.money { text-align: right; font-family: monospace; }
+        .ps-table th.money { text-align: right; }
+        .summary-text { font-size: 13px; font-weight: bold; margin-bottom: 30px; border-top: 1px solid #000; padding-top: 5px;}
         
-        th {
-            border-bottom: 2px solid #000000;
+        .check-area {
+            border: 2px solid #000;
+            padding: 15px;
+            position: relative;
         }
+        .check-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .check-middle { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .written-amount { flex: 1; border-bottom: 1px solid #000; padding-bottom: 2px; font-weight: bold; }
+        .numeric-amount { border: 1px solid #000; padding: 5px 15px; font-weight: bold; font-size: 16px; }
+        .check-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .signature-line { border-bottom: 1px solid #000; width: 250px; text-align: center; font-size: 12px; padding-top: 20px; }
 
-        .net-pay-row td {
-            border-top: 2px solid #000000;
-            border-bottom: none;
-            font-size: 16px;
-        }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Input Form Side -->
+        <!-- Input Form Section -->
         <div class="form-section">
-            <h2>Enter Details</h2>
-            <div class="form-group">
-                <label for="companyName">Company Name</label>
-                <input type="text" id="companyName" oninput="updatePreview()" value="Acme Corporation">
-            </div>
-            <div class="form-group">
-                <label for="employeeName">Employee Name</label>
-                <input type="text" id="employeeName" oninput="updatePreview()" value="John Doe">
-            </div>
-            <div class="form-group">
-                <label for="payPeriod">Pay Period</label>
-                <input type="text" id="payPeriod" oninput="updatePreview()" value="07/01/2026 - 07/15/2026">
-            </div>
-            <div class="form-group">
-                <label for="grossPay">Gross Pay ($)</label>
-                <input type="number" id="grossPay" oninput="updatePreview()" value="2500.00" step="0.01">
-            </div>
+            <h2>SpoofPayer Setup</h2>
             
-            <button class="btn" onclick="downloadPDF()">Download as PDF</button>
+            <div class="form-group">
+                <label>Document Type</label>
+                <select id="docType" onchange="toggleFormFields(); updatePreview();">
+                    <option value="paystub">Paystubs (Up to 12)</option>
+                    <option value="w2">W-2 Form</option>
+                </select>
+            </div>
+
+            <div id="paystubConfig" class="row-inputs">
+                <div class="form-group">
+                    <label>Number of Stubs</label>
+                    <select id="stubCount" onchange="updatePreview()">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>First Period End</label>
+                    <input type="date" id="startDate" onchange="updatePreview()">
+                </div>
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="compName" value="INVICTUS CARE INC" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>Company Address</label>
+                <input type="text" id="compAddress" value="16151 CAIRNWAY DR, STE 103B, HOUSTON, TX 77082" oninput="updatePreview()">
+            </div>
+            <div class="row-inputs">
+                <div class="form-group">
+                    <label>Company Phone/Email</label>
+                    <input type="text" id="compContact" value="281-400-4682" oninput="updatePreview()">
+                </div>
+                <div class="form-group" id="einGroup">
+                    <label>Company EIN (W2)</label>
+                    <input type="text" id="compEIN" value="99-3790930" oninput="updatePreview()">
+                </div>
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <div class="form-group">
+                <label>Employee Name</label>
+                <input type="text" id="empName" value="UCHE ANIMADU" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>Employee Address</label>
+                <input type="text" id="empAddress" value="1602 ENCLAVE PKWY, STE 103B, HOUSTON, TX 77077" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>Employee SSN (Format: XXX-XX-1234)</label>
+                <input type="text" id="empSSN" value="XXX-XX-3164" oninput="updatePreview()">
+            </div>
+
+            <hr style="margin: 15px 0;">
+
+            <div class="form-group">
+                <label>Target Income Amount ($)</label>
+                <input type="number" id="targetAmount" value="2960.67" step="0.01" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <label>This Amount Is:</label>
+                <select id="incomeType" onchange="updatePreview()">
+                    <option value="after">After Taxes (Net Take-Home)</option>
+                    <option value="before">Before Taxes (Gross Pay)</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="downloadPDF()">Generate & Download PDF</button>
         </div>
 
-        <!-- Live Preview Side -->
+        <!-- Document Preview Section -->
         <div class="preview-section">
-            <h2>Live Preview</h2>
-            <div class="stub-box" id="paystub-document">
-                <div class="header">
-                    <h3 id="prevCompany">Acme Corporation</h3>
-                    <p>EARNINGS STATEMENT</p>
-                </div>
-                
-                <div class="row">
-                    <div><strong>Employee:</strong> <span id="prevEmployee">John Doe</span></div>
-                    <div><strong>Period:</strong> <span id="prevPeriod">07/01/2026 - 07/15/2026</span></div>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th style="text-align: right;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Gross Earnings</td>
-                            <td style="text-align: right;">$<span id="prevGross">2500.00</span></td>
-                        </tr>
-                        <tr>
-                            <td>Federal Income Tax (10%)</td>
-                            <td style="text-align: right;">-$<span id="prevFed">250.00</span></td>
-                        </tr>
-                        <tr>
-                            <td>State Tax (5%)</td>
-                            <td style="text-align: right;">-$<span id="prevState">125.00</span></td>
-                        </tr>
-                        <tr>
-                            <td>Social Security (6.2%)</td>
-                            <td style="text-align: right;">-$<span id="prevSS">155.00</span></td>
-                        </tr>
-                        <tr>
-                            <td>Medicare (1.45%)</td>
-                            <td style="text-align: right;">-$<span id="prevMed">36.25</span></td>
-                        </tr>
-                        <tr class="net-pay-row">
-                            <td><strong>Net Pay</strong></td>
-                            <td style="text-align: right;"><strong>$<span id="prevNet">1933.75</span></strong></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="documentOutput" class="document-container">
+                <!-- Rendered dynamically via JS -->
             </div>
         </div>
     </div>
 
-    <!-- Application Logic -->
     <script>
+        // Constants for standard calculation (Approximated based on source documents)
+        const FED_TAX_RATE = 0.134; // 13.4% average for paystub examples
+        const W2_FED_RATE = 0.1504; // ~15% for W2 examples
+        const SS_RATE = 0.062; // 6.2%
+        const MED_RATE = 0.0145; // 1.45%
+
+        function toggleFormFields() {
+            const docType = document.getElementById('docType').value;
+            const paystubConfig = document.getElementById('paystubConfig');
+            
+            if (docType === 'w2') {
+                paystubConfig.classList.add('hidden');
+                document.getElementById('targetAmount').value = "125500.00";
+                document.getElementById('incomeType').value = "before";
+            } else {
+                paystubConfig.classList.remove('hidden');
+                document.getElementById('targetAmount').value = "2960.67";
+                document.getElementById('incomeType').value = "after";
+            }
+        }
+
+        // Helper: Convert number to words for the check
+        function numberToWords(amount) {
+            const num = Math.floor(amount);
+            const cents = Math.round((amount - num) * 100);
+            
+            const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+            const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
+
+            function convertInteger(n) {
+                if (n === 0) return 'Zero';
+                let str = '';
+                if (n >= 1000) {
+                    str += a[Math.floor(n/1000)] + 'Thousand ';
+                    n %= 1000;
+                }
+                if (n >= 100) {
+                    str += a[Math.floor(n/100)] + 'Hundred ';
+                    n %= 100;
+                }
+                if (n > 0) {
+                    if (n < 20) str += a[n];
+                    else {
+                        str += b[Math.floor(n/10)] + ' ';
+                        if (n%10 > 0) str += a[n%10];
+                    }
+                }
+                return str.trim();
+            }
+            
+            let wordStr = convertInteger(num);
+            let centStr = cents.toString().padStart(2, '0') + '/100';
+            return `${wordStr} AND ${centStr} Dollars`;
+        }
+
+        // Helper: Format Currency
+        function fmt(num) {
+            return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function calculateTaxes(targetAmt, type, isW2) {
+            let gross, fed, ss, med, net;
+            let fedRate = isW2 ? W2_FED_RATE : FED_TAX_RATE;
+
+            if (type === 'before') {
+                gross = parseFloat(targetAmt);
+                fed = gross * fedRate;
+                ss = gross * SS_RATE;
+                med = gross * MED_RATE;
+                net = gross - fed - ss - med;
+            } else {
+                // target is Net
+                net = parseFloat(targetAmt);
+                // net = gross - (gross * fedRate) - (gross * SS_RATE) - (gross * MED_RATE)
+                // net = gross * (1 - fedRate - SS_RATE - MED_RATE)
+                const combinedRate = 1 - fedRate - SS_RATE - MED_RATE;
+                gross = net / combinedRate;
+                fed = gross * fedRate;
+                ss = gross * SS_RATE;
+                med = gross * MED_RATE;
+            }
+            return { gross, fed, ss, med, net };
+        }
+
+        function renderW2(data, taxes) {
+            return `
+            <div class="w2-box">
+                <div class="w2-grid">
+                    <div class="w2-cell"><span class="w2-label">a Employee's social security number</span><span class="w2-value">${data.empSSN}</span></div>
+                    <div class="w2-cell" style="border-right:none; background:#eee;">OMB No. 1545-0029 For Official Use Only</div>
+                </div>
+                <div class="w2-grid">
+                    <div class="w2-cell"><span class="w2-label">b Employer identification number (EIN)</span><span class="w2-value">${data.compEIN}</span></div>
+                    <div class="w2-cell"><span class="w2-label">1 Wages, tips, other compensation</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
+                    <div class="w2-cell"><span class="w2-label">2 Federal income tax withheld</span><span class="w2-value">${taxes.fed.toFixed(2)}</span></div>
+                </div>
+                <div class="w2-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="w2-cell" style="grid-row: span 2;"><span class="w2-label">c Employer's name, address, and ZIP code</span><br><span class="w2-value">${data.compName}<br>${data.compAddress.replace(/,/g, '<br>')}</span></div>
+                    <div class="w2-cell"><span class="w2-label">3 Social security wages</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
+                    <div class="w2-cell"><span class="w2-label">4 Social security tax withheld</span><span class="w2-value">${taxes.ss.toFixed(2)}</span></div>
+                    <div class="w2-cell"><span class="w2-label">5 Medicare wages and tips</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
+                    <div class="w2-cell"><span class="w2-label">6 Medicare tax withheld</span><span class="w2-value">${taxes.med.toFixed(2)}</span></div>
+                </div>
+                <div class="w2-grid">
+                    <div class="w2-cell" style="min-height:60px;"><span class="w2-label">e Employee's first name, initial, last name</span><br><span class="w2-value">${data.empName}</span></div>
+                    <div class="w2-cell" style="min-height:60px;">
+                        <span class="w2-label">f Employee's address and ZIP code</span><br><span class="w2-value">${data.empAddress.replace(/,/g, '<br>')}</span>
+                    </div>
+                </div>
+                <div class="w2-grid" style="grid-template-columns: 1fr 2fr 1fr 2fr 1fr;">
+                    <div class="w2-cell"><span class="w2-label">15 State</span><span class="w2-value">TX</span></div>
+                    <div class="w2-cell"><span class="w2-label">16 State wages, tips, etc.</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
+                    <div class="w2-cell"><span class="w2-label">17 State income tax</span><span class="w2-value">0.00</span></div>
+                    <div class="w2-cell"><span class="w2-label">18 Local wages, tips, etc.</span><span class="w2-value"></span></div>
+                    <div class="w2-cell"><span class="w2-label">19 Local tax</span><span class="w2-value"></span></div>
+                </div>
+                <div style="padding: 10px; font-weight:bold; font-size: 16px; border-top: 1px solid #000;">
+                    W-2 Wage and Tax Statement 2025
+                </div>
+            </div>`;
+        }
+
+        function renderPaystub(data, taxes, stubIndex, totalStubs) {
+            // Calculate Dates (Working backwards every 14 days)
+            let baseDate = document.getElementById('startDate').value ? new Date(document.getElementById('startDate').value) : new Date();
+            let offsetDays = (totalStubs - stubIndex) * 14; 
+            let pEnd = new Date(baseDate);
+            pEnd.setDate(pEnd.getDate() - offsetDays);
+            let pDate = new Date(pEnd);
+            pDate.setDate(pDate.getDate() + 4); // Pay date 4 days after period end
+
+            let dateFmt = (d) => `${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}/${d.getFullYear()}`;
+            
+            // Calculate YTD (Assuming steady pay for previous periods in the year)
+            // If this is stub 1 (earliest generated), assume it's week X of the year. 
+            // For simplicity in generating consecutive stubs, YTD = current * (stubIndex + previous assumption).
+            // Let's assume the earliest stub generated is the 8th period of the year.
+            let periodMultiplier = 8 + stubIndex; 
+            
+            let ytdGross = taxes.gross * periodMultiplier;
+            let ytdFed = taxes.fed * periodMultiplier;
+            let ytdSS = taxes.ss * periodMultiplier;
+            let ytdMed = taxes.med * periodMultiplier;
+            let ytdNet = taxes.net * periodMultiplier;
+            let deductions = taxes.fed + taxes.ss + taxes.med;
+
+            let checkNum = 3500 + stubIndex;
+
+            return `
+            <div class="paystub-wrapper">
+                <div class="paystub-header">
+                    <div class="ps-company">
+                        ${data.compName}<br>
+                        ${data.compContact}<br>
+                        ${data.compAddress.replace(/,/g, '<br>')}<br><br>
+                        SSN: ${data.empSSN}
+                    </div>
+                    <div class="ps-title">
+                        <h3>Earnings Statement</h3>
+                        <p>Period Ending: ${dateFmt(pEnd)}<br>Pay Date: ${dateFmt(pDate)}</p>
+                    </div>
+                </div>
+
+                <div class="ps-tables">
+                    <table class="ps-table">
+                        <thead>
+                            <tr><th>Earnings</th><th class="money">Rate</th><th class="money">This Period</th><th class="money">Year to Date</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Salary</td><td class="money">${fmt(taxes.gross * 26)}</td><td class="money">${fmt(taxes.gross)}</td><td class="money">${fmt(ytdGross)}</td></tr>
+                            <tr style="border-top: 2px solid #000; font-weight: bold;"><td>Gross Pay</td><td></td><td class="money">$${fmt(taxes.gross)}</td><td class="money">$${fmt(ytdGross)}</td></tr>
+                        </tbody>
+                    </table>
+
+                    <table class="ps-table">
+                        <thead>
+                            <tr><th>Deductions</th><th>Type</th><th class="money">This Period</th><th class="money">Year to Date</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td></td><td>FICA-Medicare</td><td class="money">${fmt(taxes.med)}</td><td class="money">${fmt(ytdMed)}</td></tr>
+                            <tr><td></td><td>FICA-Social Security</td><td class="money">${fmt(taxes.ss)}</td><td class="money">${fmt(ytdSS)}</td></tr>
+                            <tr><td></td><td>Federal tax</td><td class="money">${fmt(taxes.fed)}</td><td class="money">${fmt(ytdFed)}</td></tr>
+                            <tr><td></td><td>State tax</td><td class="money">0.00</td><td class="money">0.00</td></tr>
+                            <tr style="border-top: 2px solid #000; font-weight: bold;"><td>Net Pay</td><td></td><td class="money">$${fmt(taxes.net)}</td><td class="money">$${fmt(ytdNet)}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="summary-text">
+                    Your deductions for this period are ${fmt(deductions)}
+                </div>
+
+                <div class="check-area">
+                    <div class="check-top">
+                        <div class="ps-company">
+                            ${data.compName}<br>
+                            ${data.compContact}<br>
+                            ${data.compAddress.replace(/,/g, '<br>')}
+                        </div>
+                        <div style="text-align: right;">
+                            Payroll Check Number: ${checkNum}<br>
+                            Pay Date: ${dateFmt(pDate)}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <strong>Pay to the order of:</strong><br>
+                        ${data.empName}<br>
+                        ${data.empAddress}
+                    </div>
+
+                    <div class="check-middle">
+                        <div class="written-amount">${numberToWords(taxes.net)}</div>
+                        <div class="numeric-amount">$${fmt(taxes.net)}</div>
+                    </div>
+
+                    <div class="check-bottom">
+                        <div></div>
+                        <div class="signature-line">Authorized Signature</div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
         function updatePreview() {
-            // Retrieve values from inputs
-            const company = document.getElementById('companyName').value || 'Company Name';
-            const employee = document.getElementById('employeeName').value || 'Employee Name';
-            const period = document.getElementById('payPeriod').value || 'MM/DD/YYYY - MM/DD/YYYY';
-            const grossInput = document.getElementById('grossPay').value;
-            const gross = parseFloat(grossInput) || 0;
+            const docType = document.getElementById('docType').value;
+            const targetAmt = document.getElementById('targetAmount').value || 0;
+            const incType = document.getElementById('incomeType').value;
+            const output = document.getElementById('documentOutput');
+            
+            const data = {
+                compName: document.getElementById('compName').value || 'COMPANY NAME',
+                compAddress: document.getElementById('compAddress').value || 'ADDRESS',
+                compContact: document.getElementById('compContact').value || 'PHONE',
+                compEIN: document.getElementById('compEIN').value || 'XX-XXXXXXX',
+                empName: document.getElementById('empName').value || 'EMPLOYEE NAME',
+                empAddress: document.getElementById('empAddress').value || 'EMPLOYEE ADDRESS',
+                empSSN: document.getElementById('empSSN').value || 'XXX-XX-XXXX'
+            };
 
-            // Calculate standard deductions (Simplified for demo)
-            const fed = gross * 0.10;
-            const state = gross * 0.05;
-            const ss = gross * 0.062;
-            const med = gross * 0.0145;
-            const net = gross - fed - state - ss - med;
+            let htmlString = '';
 
-            // Inject values into the DOM
-            document.getElementById('prevCompany').innerText = company;
-            document.getElementById('prevEmployee').innerText = employee;
-            document.getElementById('prevPeriod').innerText = period;
-            document.getElementById('prevGross').innerText = gross.toFixed(2);
-            document.getElementById('prevFed').innerText = fed.toFixed(2);
-            document.getElementById('prevState').innerText = state.toFixed(2);
-            document.getElementById('prevSS').innerText = ss.toFixed(2);
-            document.getElementById('prevMed').innerText = med.toFixed(2);
-            document.getElementById('prevNet').innerText = net.toFixed(2);
+            if (docType === 'w2') {
+                const taxes = calculateTaxes(targetAmt, incType, true);
+                htmlString += renderW2(data, taxes);
+                htmlString += renderW2(data, taxes); // Often printed with multiple copies per page
+            } else {
+                const taxes = calculateTaxes(targetAmt, incType, false);
+                const count = parseInt(document.getElementById('stubCount').value) || 1;
+                for (let i = 1; i <= count; i++) {
+                    htmlString += renderPaystub(data, taxes, i, count);
+                }
+            }
+
+            output.innerHTML = htmlString;
         }
 
         function downloadPDF() {
-            // Target the specific document container
-            const element = document.getElementById('paystub-document');
+            const element = document.getElementById('documentOutput');
+            const docType = document.getElementById('docType').value;
             
-            // Configure PDF output
             const opt = {
-                margin:       0.5,
-                filename:     'Official_Paystub.pdf',
-                image:        { type: 'jpeg', quality: 1 },
+                margin:       [0.5, 0.5, 0.5, 0.5],
+                filename:     `SpoofPayer_${docType.toUpperCase()}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
             
-            // Generate and save
             html2pdf().set(opt).from(element).save();
         }
-        
-        // Initialize the preview on first load
+
+        // Initialize on load
         window.onload = function() {
+            // Set default date to today
+            document.getElementById('startDate').valueAsDate = new Date();
             updatePreview();
         };
     </script>
