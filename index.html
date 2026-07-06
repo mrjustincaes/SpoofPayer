@@ -18,24 +18,24 @@
         .container { 
             display: flex; 
             width: 100%; 
-            max-width: 1200px; 
+            max-width: 1300px; 
             gap: 30px; 
         }
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .container { flex-direction: column; }
         }
 
         /* Form Styles */
         .form-section { 
             flex: 1; 
-            min-width: 350px;
+            min-width: 400px;
             padding: 20px; 
             border: 1px solid #000000; 
             background-color: #ffffff;
             height: fit-content;
         }
         .form-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 13px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 12px; }
         input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #000; font-size: 14px; }
         .row-inputs { display: flex; gap: 10px; }
         .row-inputs .form-group { flex: 1; }
@@ -105,17 +105,36 @@
         .ps-table th.money { text-align: right; }
         .summary-text { font-size: 13px; font-weight: bold; margin-bottom: 30px; border-top: 1px solid #000; padding-top: 5px;}
         
-        .check-area {
+        /* Direct Deposit Styles */
+        .dd-area {
             border: 2px solid #000;
             padding: 15px;
             position: relative;
         }
-        .check-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .check-middle { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .written-amount { flex: 1; border-bottom: 1px solid #000; padding-bottom: 2px; font-weight: bold; }
-        .numeric-amount { border: 1px solid #000; padding: 5px 15px; font-weight: bold; font-size: 16px; }
-        .check-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
-        .signature-line { border-bottom: 1px solid #000; width: 250px; text-align: center; font-size: 12px; padding-top: 20px; }
+        .dd-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .dd-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .dd-table th {
+            text-align: left;
+            border-bottom: 1px solid #999;
+            padding: 8px 5px;
+        }
+        .dd-table td {
+            padding: 10px 5px;
+            font-family: monospace;
+            font-size: 15px;
+        }
 
         .hidden { display: none; }
     </style>
@@ -123,8 +142,9 @@
 <body>
 
     <div class="container">
+        <!-- Input Form Section -->
         <div class="form-section">
-            <h2>SpoofPayer Setup</h2>
+            <h2 style="margin-top: 0;">SpoofPayer Setup</h2>
             
             <div class="form-group">
                 <label>Document Type</label>
@@ -155,53 +175,105 @@
 
             <hr style="margin: 15px 0;">
 
+            <h3 style="font-size: 14px; margin-bottom: 10px;">Company Details</h3>
             <div class="form-group">
                 <label>Company Name</label>
-                <input type="text" id="compName" value="INVICTUS CARE INC" oninput="updatePreview()">
+                <input type="text" id="compName" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>Company Street Address</label>
-                <input type="text" id="compStreet" value="16151 CAIRNWAY DR, STE 103B" oninput="updatePreview()">
+                <label>Address 1</label>
+                <input type="text" id="compAdd1" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>Company City, State, Zip</label>
-                <input type="text" id="compCity" value="HOUSTON, TX 77082" oninput="updatePreview()">
+                <label>Address 2 (Optional)</label>
+                <input type="text" id="compAdd2" oninput="updatePreview()">
+            </div>
+            <div class="row-inputs">
+                <div class="form-group" style="flex: 2;">
+                    <label>City</label>
+                    <input type="text" id="compCity" oninput="updatePreview()">
+                </div>
+                <div class="form-group" style="flex: 1.5;">
+                    <label>State</label>
+                    <select id="compState" onchange="updatePreview()">
+                        <option value="">Select</option>
+                        <!-- Auto-populated via JS -->
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Zipcode</label>
+                    <input type="text" id="compZip" oninput="updatePreview()">
+                </div>
             </div>
             <div class="row-inputs">
                 <div class="form-group">
-                    <label>Company Phone/Email</label>
-                    <input type="text" id="compContact" value="281-400-4682" oninput="updatePreview()">
+                    <label>Phone / Email</label>
+                    <input type="text" id="compContact" oninput="updatePreview()">
                 </div>
                 <div class="form-group" id="einGroup">
                     <label>Company EIN (W2)</label>
-                    <input type="text" id="compEIN" value="99-3790930" oninput="updatePreview()">
+                    <input type="text" id="compEIN" oninput="updatePreview()">
                 </div>
             </div>
 
             <hr style="margin: 15px 0;">
 
+            <h3 style="font-size: 14px; margin-bottom: 10px;">Employee Details</h3>
             <div class="form-group">
                 <label>Employee Name</label>
-                <input type="text" id="empName" value="UCHE ANIMADU" oninput="updatePreview()">
+                <input type="text" id="empName" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>Employee Street Address</label>
-                <input type="text" id="empStreet" value="1602 ENCLAVE PKWY, STE 103B" oninput="updatePreview()">
+                <label>Address 1</label>
+                <input type="text" id="empAdd1" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>Employee City, State, Zip</label>
-                <input type="text" id="empCity" value="HOUSTON, TX 77077" oninput="updatePreview()">
+                <label>Address 2 (Optional)</label>
+                <input type="text" id="empAdd2" oninput="updatePreview()">
+            </div>
+            <div class="row-inputs">
+                <div class="form-group" style="flex: 2;">
+                    <label>City</label>
+                    <input type="text" id="empCity" oninput="updatePreview()">
+                </div>
+                <div class="form-group" style="flex: 1.5;">
+                    <label>State</label>
+                    <select id="empState" onchange="updatePreview()">
+                        <option value="">Select</option>
+                        <!-- Auto-populated via JS -->
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Zipcode</label>
+                    <input type="text" id="empZip" oninput="updatePreview()">
+                </div>
             </div>
             <div class="form-group">
-                <label>Employee SSN</label>
-                <input type="text" id="empSSN" value="XXX-XX-3164" oninput="updatePreview()">
+                <label>Employee SSN (Format: XXX-XX-XXXX)</label>
+                <input type="text" id="empSSN" oninput="updatePreview()">
             </div>
 
             <hr style="margin: 15px 0;">
 
+            <div id="ddConfig">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">Direct Deposit Details</h3>
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" id="bankName" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number (Last 4)</label>
+                        <input type="text" id="acctNum" maxlength="4" oninput="updatePreview()">
+                    </div>
+                </div>
+                <hr style="margin: 15px 0;">
+            </div>
+
+            <h3 style="font-size: 14px; margin-bottom: 10px;">Financials</h3>
             <div class="form-group">
-                <label>Target Income Amount ($)</label>
-                <input type="number" id="targetAmount" value="2960.67" step="0.01" oninput="updatePreview()">
+                <label>Target Amount ($)</label>
+                <input type="number" id="targetAmount" step="0.01" oninput="updatePreview()">
             </div>
             <div class="form-group">
                 <label>This Amount Is:</label>
@@ -214,90 +286,103 @@
             <button class="btn" onclick="downloadPDF()">Generate & Download PDF</button>
         </div>
 
+        <!-- Document Preview Section -->
         <div class="preview-section">
             <div id="documentOutput" class="document-container">
-                </div>
+                <!-- Rendered dynamically via JS -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Constants for standard calculation (Approximated)
+        // State Income Tax Dictionary (2025/2026 Engine)
+        // 0 = No Income Tax states. Decimals = Flat rates or simplified graduated averages.
+        const STATE_TAX_RATES = {
+            "AL": 0.04, "AK": 0.00, "AZ": 0.025, "AR": 0.039, "CA": 0.06, 
+            "CO": 0.044, "CT": 0.05, "DE": 0.04, "FL": 0.00, "GA": 0.0519, 
+            "HI": 0.07, "ID": 0.053, "IL": 0.0495, "IN": 0.03, "IA": 0.038, 
+            "KS": 0.052, "KY": 0.04, "LA": 0.03, "ME": 0.058, "MD": 0.045, 
+            "MA": 0.05, "MI": 0.0425, "MN": 0.06, "MS": 0.04, "MO": 0.04, 
+            "MT": 0.047, "NE": 0.045, "NV": 0.00, "NH": 0.00, "NJ": 0.05, 
+            "NM": 0.04, "NY": 0.05, "NC": 0.0399, "ND": 0.02, "OH": 0.0275, 
+            "OK": 0.045, "OR": 0.07, "PA": 0.0307, "RI": 0.04, "SC": 0.04, 
+            "SD": 0.00, "TN": 0.00, "TX": 0.00, "UT": 0.0455, "VT": 0.04, 
+            "VA": 0.04, "WA": 0.00, "WV": 0.04, "WI": 0.05, "WY": 0.00
+        };
+
         const FED_TAX_RATE = 0.134; 
         const W2_FED_RATE = 0.1504; 
         const SS_RATE = 0.062; 
         const MED_RATE = 0.0145; 
 
-        function toggleFormFields() {
-            const docType = document.getElementById('docType').value;
-            const paystubConfig = document.getElementById('paystubConfig');
-            
-            if (docType === 'w2') {
-                paystubConfig.classList.add('hidden');
-                document.getElementById('targetAmount').value = "125500.00";
-                document.getElementById('incomeType').value = "before";
-            } else {
-                paystubConfig.classList.remove('hidden');
-                document.getElementById('targetAmount').value = "2960.67";
-                document.getElementById('incomeType').value = "after";
+        // Populate State Dropdowns
+        function populateStates() {
+            const selects = [document.getElementById('compState'), document.getElementById('empState')];
+            for (const state in STATE_TAX_RATES) {
+                selects.forEach(select => {
+                    let option = document.createElement("option");
+                    option.text = state;
+                    option.value = state;
+                    select.add(option);
+                });
             }
         }
 
-        function numberToWords(amount) {
-            const num = Math.floor(amount);
-            const cents = Math.round((amount - num) * 100);
+        function toggleFormFields() {
+            const docType = document.getElementById('docType').value;
+            const paystubConfig = document.getElementById('paystubConfig');
+            const ddConfig = document.getElementById('ddConfig');
             
-            const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
-            const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
-
-            function convertInteger(n) {
-                if (n === 0) return 'Zero';
-                let str = '';
-                if (n >= 1000) {
-                    str += a[Math.floor(n/1000)] + 'Thousand ';
-                    n %= 1000;
-                }
-                if (n >= 100) {
-                    str += a[Math.floor(n/100)] + 'Hundred ';
-                    n %= 100;
-                }
-                if (n > 0) {
-                    if (n < 20) str += a[n];
-                    else {
-                        str += b[Math.floor(n/10)] + ' ';
-                        if (n%10 > 0) str += a[n%10];
-                    }
-                }
-                return str.trim();
+            if (docType === 'w2') {
+                paystubConfig.classList.add('hidden');
+                ddConfig.classList.add('hidden');
+            } else {
+                paystubConfig.classList.remove('hidden');
+                ddConfig.classList.remove('hidden');
             }
-            
-            let wordStr = convertInteger(num);
-            let centStr = cents.toString().padStart(2, '0') + '/100';
-            return `${wordStr} AND ${centStr} Dollars`;
         }
 
         function fmt(num) {
             return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
 
-        function calculateTaxes(targetAmt, type, isW2) {
-            let gross, fed, ss, med, net;
+        function buildAddressBlock(add1, add2, city, state, zip) {
+            let block = add1 ? `${add1}<br>` : '[STREET ADDRESS]<br>';
+            if (add2) block += `${add2}<br>`;
+            
+            let bottomLine = '';
+            if (city || state || zip) {
+                bottomLine = `${city || '[CITY]'}, ${state || '[ST]'} ${zip || '[ZIP]'}`;
+            } else {
+                bottomLine = '[CITY, STATE ZIP]';
+            }
+            return block + bottomLine;
+        }
+
+        function calculateTaxes(targetAmt, type, isW2, compStateCode) {
+            let gross, fed, ss, med, stateTax, net;
             let fedRate = isW2 ? W2_FED_RATE : FED_TAX_RATE;
+            
+            // Dynamic State Tax Engine based on Company Location
+            let stateRate = STATE_TAX_RATES[compStateCode] || 0;
 
             if (type === 'before') {
-                gross = parseFloat(targetAmt);
+                gross = parseFloat(targetAmt) || 0;
                 fed = gross * fedRate;
                 ss = gross * SS_RATE;
                 med = gross * MED_RATE;
-                net = gross - fed - ss - med;
+                stateTax = gross * stateRate;
+                net = gross - fed - ss - med - stateTax;
             } else {
-                net = parseFloat(targetAmt);
-                const combinedRate = 1 - fedRate - SS_RATE - MED_RATE;
+                net = parseFloat(targetAmt) || 0;
+                const combinedRate = 1 - fedRate - SS_RATE - MED_RATE - stateRate;
                 gross = net / combinedRate;
                 fed = gross * fedRate;
                 ss = gross * SS_RATE;
                 med = gross * MED_RATE;
+                stateTax = gross * stateRate;
             }
-            return { gross, fed, ss, med, net };
+            return { gross, fed, ss, med, stateTax, net };
         }
 
         function renderW2(data, taxes) {
@@ -315,7 +400,10 @@
                 <div class="w2-grid" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="w2-cell" style="grid-row: span 2;">
                         <span class="w2-label">c Employer's name, address, and ZIP code</span><br>
-                        <span class="w2-value">${data.compName}<br>${data.compStreet}<br>${data.compCity}</span>
+                        <span class="w2-value">
+                            ${data.compName}<br>
+                            ${data.compAddressBlock}
+                        </span>
                     </div>
                     <div class="w2-cell"><span class="w2-label">3 Social security wages</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
                     <div class="w2-cell"><span class="w2-label">4 Social security tax withheld</span><span class="w2-value">${taxes.ss.toFixed(2)}</span></div>
@@ -325,13 +413,14 @@
                 <div class="w2-grid">
                     <div class="w2-cell" style="min-height:60px;"><span class="w2-label">e Employee's first name, initial, last name</span><br><span class="w2-value">${data.empName}</span></div>
                     <div class="w2-cell" style="min-height:60px;">
-                        <span class="w2-label">f Employee's address and ZIP code</span><br><span class="w2-value">${data.empStreet}<br>${data.empCity}</span>
+                        <span class="w2-label">f Employee's address and ZIP code</span><br>
+                        <span class="w2-value">${data.empAddressBlock}</span>
                     </div>
                 </div>
                 <div class="w2-grid" style="grid-template-columns: 1fr 2fr 1fr 2fr 1fr;">
-                    <div class="w2-cell"><span class="w2-label">15 State</span><span class="w2-value">TX</span></div>
+                    <div class="w2-cell"><span class="w2-label">15 State</span><span class="w2-value">${data.compState || ''}</span></div>
                     <div class="w2-cell"><span class="w2-label">16 State wages, tips, etc.</span><span class="w2-value">${taxes.gross.toFixed(2)}</span></div>
-                    <div class="w2-cell"><span class="w2-label">17 State income tax</span><span class="w2-value">0.00</span></div>
+                    <div class="w2-cell"><span class="w2-label">17 State income tax</span><span class="w2-value">${taxes.stateTax.toFixed(2)}</span></div>
                     <div class="w2-cell"><span class="w2-label">18 Local wages, tips, etc.</span><span class="w2-value"></span></div>
                     <div class="w2-cell"><span class="w2-label">19 Local tax</span><span class="w2-value"></span></div>
                 </div>
@@ -357,8 +446,9 @@
             let ytdFed = taxes.fed * periodMultiplier;
             let ytdSS = taxes.ss * periodMultiplier;
             let ytdMed = taxes.med * periodMultiplier;
+            let ytdState = taxes.stateTax * periodMultiplier;
             let ytdNet = taxes.net * periodMultiplier;
-            let deductions = taxes.fed + taxes.ss + taxes.med;
+            let deductions = taxes.fed + taxes.ss + taxes.med + taxes.stateTax;
 
             let checkNum = 3500 + stubIndex;
 
@@ -367,14 +457,12 @@
                 <div class="paystub-header">
                     <div class="ps-block">
                         <strong>${data.compName}</strong><br>
-                        ${data.compStreet}<br>
-                        ${data.compCity}<br>
+                        ${data.compAddressBlock}<br>
                         ${data.compContact}
                     </div>
                     <div class="ps-block">
                         <strong>${data.empName}</strong><br>
-                        ${data.empStreet}<br>
-                        ${data.empCity}<br><br>
+                        ${data.empAddressBlock}<br><br>
                         SSN: ${data.empSSN}
                     </div>
                     <div class="ps-title">
@@ -401,8 +489,8 @@
                         <tbody>
                             <tr><td></td><td>FICA-Medicare</td><td class="money">${fmt(taxes.med)}</td><td class="money">${fmt(ytdMed)}</td></tr>
                             <tr><td></td><td>FICA-Social Security</td><td class="money">${fmt(taxes.ss)}</td><td class="money">${fmt(ytdSS)}</td></tr>
-                            <tr><td></td><td>Federal tax</td><td class="money">${fmt(taxes.fed)}</td><td class="money">${fmt(ytdFed)}</td></tr>
-                            <tr><td></td><td>State tax</td><td class="money">0.00</td><td class="money">0.00</td></tr>
+                            <tr><td></td><td>Federal Tax</td><td class="money">${fmt(taxes.fed)}</td><td class="money">${fmt(ytdFed)}</td></tr>
+                            <tr><td></td><td>State Tax (${data.compState || 'N/A'})</td><td class="money">${fmt(taxes.stateTax)}</td><td class="money">${fmt(ytdState)}</td></tr>
                             <tr style="border-top: 2px solid #000; font-weight: bold;"><td>Net Pay</td><td></td><td class="money">$${fmt(taxes.net)}</td><td class="money">$${fmt(ytdNet)}</td></tr>
                         </tbody>
                     </table>
@@ -412,36 +500,39 @@
                     Your deductions for this period are ${fmt(deductions)}
                 </div>
 
-                <div class="check-area">
-                    <div class="check-top">
-                        <div class="ps-block">
-                            <strong>${data.compName}</strong><br>
-                            ${data.compStreet}<br>
-                            ${data.compCity}<br>
-                            ${data.compContact}
+                <!-- Direct Deposit Advice Slip -->
+                <div class="dd-area">
+                    <div class="dd-header">NON-NEGOTIABLE - DIRECT DEPOSIT ADVICE</div>
+                    
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div>
+                            <strong>Deposited For:</strong><br>
+                            ${data.empName}
                         </div>
                         <div style="text-align: right;">
-                            Payroll Check Number: ${checkNum}<br>
-                            Pay Date: ${dateFmt(pDate)}
+                            <strong>Advice Number:</strong> ${checkNum}<br>
+                            <strong>Deposit Date:</strong> ${dateFmt(pDate)}
                         </div>
                     </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <strong>Pay to the order of:</strong><br>
-                        ${data.empName}<br>
-                        ${data.empStreet}<br>
-                        ${data.empCity}
-                    </div>
 
-                    <div class="check-middle">
-                        <div class="written-amount">${numberToWords(taxes.net)}</div>
-                        <div class="numeric-amount">$${fmt(taxes.net)}</div>
-                    </div>
-
-                    <div class="check-bottom">
-                        <div></div>
-                        <div class="signature-line">Authorized Signature</div>
-                    </div>
+                    <table class="dd-table">
+                        <thead>
+                            <tr>
+                                <th>Bank Name</th>
+                                <th>Account Number</th>
+                                <th>Routing Number</th>
+                                <th style="text-align: right;">Deposit Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${data.bankName}</td>
+                                <td>********${data.acctNum}</td>
+                                <td>*********</td>
+                                <td style="text-align: right; font-weight: bold;">$${fmt(taxes.net)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             `;
@@ -449,30 +540,44 @@
 
         function updatePreview() {
             const docType = document.getElementById('docType').value;
-            const targetAmt = document.getElementById('targetAmount').value || 0;
+            const targetAmt = document.getElementById('targetAmount').value;
             const incType = document.getElementById('incomeType').value;
             const output = document.getElementById('documentOutput');
             
             const data = {
-                compName: document.getElementById('compName').value || 'COMPANY NAME',
-                compStreet: document.getElementById('compStreet').value || 'STREET ADDRESS',
-                compCity: document.getElementById('compCity').value || 'CITY, STATE, ZIP',
-                compContact: document.getElementById('compContact').value || 'PHONE',
+                compName: document.getElementById('compName').value || '[COMPANY NAME]',
+                compAdd1: document.getElementById('compAdd1').value,
+                compAdd2: document.getElementById('compAdd2').value,
+                compCity: document.getElementById('compCity').value,
+                compState: document.getElementById('compState').value,
+                compZip: document.getElementById('compZip').value,
+                compContact: document.getElementById('compContact').value || '[PHONE/EMAIL]',
                 compEIN: document.getElementById('compEIN').value || 'XX-XXXXXXX',
-                empName: document.getElementById('empName').value || 'EMPLOYEE NAME',
-                empStreet: document.getElementById('empStreet').value || 'EMPLOYEE STREET',
-                empCity: document.getElementById('empCity').value || 'CITY, STATE, ZIP',
-                empSSN: document.getElementById('empSSN').value || 'XXX-XX-XXXX'
+                
+                empName: document.getElementById('empName').value || '[EMPLOYEE NAME]',
+                empAdd1: document.getElementById('empAdd1').value,
+                empAdd2: document.getElementById('empAdd2').value,
+                empCity: document.getElementById('empCity').value,
+                empState: document.getElementById('empState').value,
+                empZip: document.getElementById('empZip').value,
+                empSSN: document.getElementById('empSSN').value || 'XXX-XX-XXXX',
+
+                bankName: document.getElementById('bankName').value || '[BANK NAME]',
+                acctNum: document.getElementById('acctNum').value || 'XXXX'
             };
+
+            // Format Address Blocks (City, State, Zip on one line)
+            data.compAddressBlock = buildAddressBlock(data.compAdd1, data.compAdd2, data.compCity, data.compState, data.compZip);
+            data.empAddressBlock = buildAddressBlock(data.empAdd1, data.empAdd2, data.empCity, data.empState, data.empZip);
 
             let htmlString = '';
 
             if (docType === 'w2') {
-                const taxes = calculateTaxes(targetAmt, incType, true);
+                const taxes = calculateTaxes(targetAmt, incType, true, data.compState);
                 htmlString += renderW2(data, taxes);
                 htmlString += renderW2(data, taxes); 
             } else {
-                const taxes = calculateTaxes(targetAmt, incType, false);
+                const taxes = calculateTaxes(targetAmt, incType, false, data.compState);
                 const count = parseInt(document.getElementById('stubCount').value) || 1;
                 for (let i = 1; i <= count; i++) {
                     htmlString += renderPaystub(data, taxes, i, count);
@@ -498,6 +603,7 @@
         }
 
         window.onload = function() {
+            populateStates();
             document.getElementById('startDate').valueAsDate = new Date();
             updatePreview();
         };
