@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Paystub Generator</title>
+    <!-- Library for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Core Reset and Base Styles */
+        body { 
+            background-color: #ffffff; 
+            color: #000000; 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            display: flex; 
+            justify-content: center; 
+        }
+        
+        .container { 
+            display: flex; 
+            width: 100%; 
+            max-width: 1000px; 
+            gap: 40px; 
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        /* Form Layout */
+        .form-section { 
+            flex: 1; 
+            padding: 20px; 
+            border: 1px solid #cccccc; 
+            background-color: #ffffff;
+        }
+        
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            font-size: 14px;
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            border: 1px solid #aaaaaa;
+            font-size: 14px;
+        }
+
+        .btn { 
+            padding: 12px 20px; 
+            background-color: #000000; 
+            color: #ffffff; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin-top: 20px; 
+            width: 100%; 
+            font-weight: bold;
+        }
+        
+        .btn:hover { 
+            background-color: #333333; 
+        }
+
+        /* Document Preview Layout */
+        .preview-section { 
+            flex: 1; 
+            padding: 20px; 
+            border: 1px solid #cccccc; 
+            background-color: #ffffff; 
+        }
+        
+        .stub-box { 
+            border: 2px solid #000000; 
+            padding: 30px; 
+            background-color: #ffffff; 
+            color: #000000; 
+        }
+        
+        .header { 
+            text-align: center; 
+            border-bottom: 2px solid #000000; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+        }
+        
+        .header h3 {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        
+        .header p {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 15px; 
+            font-size: 14px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        
+        th, td { 
+            border-bottom: 1px solid #dddddd; 
+            padding: 10px 5px; 
+            text-align: left; 
+            font-size: 14px;
+        }
+        
+        th {
+            border-bottom: 2px solid #000000;
+        }
+
+        .net-pay-row td {
+            border-top: 2px solid #000000;
+            border-bottom: none;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Input Form Side -->
+        <div class="form-section">
+            <h2>Enter Details</h2>
+            <div class="form-group">
+                <label for="companyName">Company Name</label>
+                <input type="text" id="companyName" oninput="updatePreview()" value="Acme Corporation">
+            </div>
+            <div class="form-group">
+                <label for="employeeName">Employee Name</label>
+                <input type="text" id="employeeName" oninput="updatePreview()" value="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="payPeriod">Pay Period</label>
+                <input type="text" id="payPeriod" oninput="updatePreview()" value="07/01/2026 - 07/15/2026">
+            </div>
+            <div class="form-group">
+                <label for="grossPay">Gross Pay ($)</label>
+                <input type="number" id="grossPay" oninput="updatePreview()" value="2500.00" step="0.01">
+            </div>
+            
+            <button class="btn" onclick="downloadPDF()">Download as PDF</button>
+        </div>
+
+        <!-- Live Preview Side -->
+        <div class="preview-section">
+            <h2>Live Preview</h2>
+            <div class="stub-box" id="paystub-document">
+                <div class="header">
+                    <h3 id="prevCompany">Acme Corporation</h3>
+                    <p>EARNINGS STATEMENT</p>
+                </div>
+                
+                <div class="row">
+                    <div><strong>Employee:</strong> <span id="prevEmployee">John Doe</span></div>
+                    <div><strong>Period:</strong> <span id="prevPeriod">07/01/2026 - 07/15/2026</span></div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gross Earnings</td>
+                            <td style="text-align: right;">$<span id="prevGross">2500.00</span></td>
+                        </tr>
+                        <tr>
+                            <td>Federal Income Tax (10%)</td>
+                            <td style="text-align: right;">-$<span id="prevFed">250.00</span></td>
+                        </tr>
+                        <tr>
+                            <td>State Tax (5%)</td>
+                            <td style="text-align: right;">-$<span id="prevState">125.00</span></td>
+                        </tr>
+                        <tr>
+                            <td>Social Security (6.2%)</td>
+                            <td style="text-align: right;">-$<span id="prevSS">155.00</span></td>
+                        </tr>
+                        <tr>
+                            <td>Medicare (1.45%)</td>
+                            <td style="text-align: right;">-$<span id="prevMed">36.25</span></td>
+                        </tr>
+                        <tr class="net-pay-row">
+                            <td><strong>Net Pay</strong></td>
+                            <td style="text-align: right;"><strong>$<span id="prevNet">1933.75</span></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        function updatePreview() {
+            // Retrieve values from inputs
+            const company = document.getElementById('companyName').value || 'Company Name';
+            const employee = document.getElementById('employeeName').value || 'Employee Name';
+            const period = document.getElementById('payPeriod').value || 'MM/DD/YYYY - MM/DD/YYYY';
+            const grossInput = document.getElementById('grossPay').value;
+            const gross = parseFloat(grossInput) || 0;
+
+            // Calculate standard deductions (Simplified for demo)
+            const fed = gross * 0.10;
+            const state = gross * 0.05;
+            const ss = gross * 0.062;
+            const med = gross * 0.0145;
+            const net = gross - fed - state - ss - med;
+
+            // Inject values into the DOM
+            document.getElementById('prevCompany').innerText = company;
+            document.getElementById('prevEmployee').innerText = employee;
+            document.getElementById('prevPeriod').innerText = period;
+            document.getElementById('prevGross').innerText = gross.toFixed(2);
+            document.getElementById('prevFed').innerText = fed.toFixed(2);
+            document.getElementById('prevState').innerText = state.toFixed(2);
+            document.getElementById('prevSS').innerText = ss.toFixed(2);
+            document.getElementById('prevMed').innerText = med.toFixed(2);
+            document.getElementById('prevNet').innerText = net.toFixed(2);
+        }
+
+        function downloadPDF() {
+            // Target the specific document container
+            const element = document.getElementById('paystub-document');
+            
+            // Configure PDF output
+            const opt = {
+                margin:       0.5,
+                filename:     'Official_Paystub.pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Generate and save
+            html2pdf().set(opt).from(element).save();
+        }
+        
+        // Initialize the preview on first load
+        window.onload = function() {
+            updatePreview();
+        };
+    </script>
+</body>
+</html>
